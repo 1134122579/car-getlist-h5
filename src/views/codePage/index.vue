@@ -225,6 +225,7 @@ export default {
         }
       })
     },
+    // 调用支付
     onBridgeReady() {
       let that = this
       let { out_trade_no } = this.payToolsOrderApi

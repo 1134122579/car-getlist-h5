@@ -3,6 +3,8 @@
  * @type { *[] }
  */
 import { getShareInfo } from '@/utils/share.js'
+import { overdueToken } from '@/utils/wxload.js'
+import { setToken, getToken } from '@/utils/loaclStting.js'
 
 export const constantRouterMap = [
   {
@@ -19,6 +21,31 @@ export const constantRouterMap = [
     meta: {
       title: '用户信息',
       keepAlive: false
+    }
+  },
+  {
+    path: '/studentauthuser',
+    component: () => import('@/views/user/studentauthuser.vue'),
+    meta: {
+      title: '学生卡认证领取',
+      keepAlive: false
+    },
+    beforeEnter: (to, from, next) => {
+      if (!getToken()) {
+        overdueToken()
+        return
+      }
+      let wxConfig = {
+        title: '天空之橙，学生卡领取',
+        desc: '驻淄高校学生领取会员卡',
+        link: location.origin + location.pathname,
+        imgUrl: 'http://api.skyorange.cn/wxh5/skylogo.jpg',
+        success(res) {}
+      }
+      getShareInfo(wxConfig, res => {
+        console.log('分享完成===beforeEnter', res.data)
+        next()
+      })
     }
   },
   {
@@ -95,7 +122,7 @@ export const constantRouterMap = [
   {
     path: '*',
     name: 'pageNull',
-    redirect: '/'
+    redirect: '/404'
   }
 
   // {

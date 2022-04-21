@@ -225,3 +225,19 @@ export function getCouponDetial(params) {
     hideloading: true
   })
 }
+export function getCardInfo(data) {
+  return request({
+    url: api.getCardInfo,
+    method: 'post',
+    data,
+    hideloading: true
+  })
+}
+export function createVipOrder(data) {
+  return request({
+    url: api.createVipOrder,
+    method: 'post',
+    data,
+    hideloading: true
+  })
+}

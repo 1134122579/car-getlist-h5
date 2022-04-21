@@ -46,6 +46,7 @@ export default function (router) {
         next()
       })
     } else {
+      return
       let wxConfig = {
         title: '@所有人 您有一张元旦免票卡等待领取',
         desc: '天空之橙元旦福利免费领取啦~',

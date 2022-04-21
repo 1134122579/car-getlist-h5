@@ -25,6 +25,8 @@ const api = {
   ReceiveCoupon: '/ReceiveCoupon',
   getCouponLog: '/getCouponLog',
   checkCoupon: '/checkCoupon',
+  getCardInfo: '/getCardInfo',
+  createVipOrder: '/createVipOrder',
   getCouponDetial: '/getCouponDetial'
 }
 
