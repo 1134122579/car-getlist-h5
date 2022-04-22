@@ -24,6 +24,7 @@ export function overdueToken() {
   let code = getUrlKey('code')
   let vipcode = getUrlKey('vipcode')
   let couponcode = getUrlKey('couponcode')
+  let card_id = getUrlKey('card_id')
   if (code) {
     API.login({
       code
@@ -35,6 +36,10 @@ export function overdueToken() {
       }
       if (couponcode) {
         window.location.replace(`${window.location.origin}${window.location.pathname}?couponcode=${couponcode}`)
+        return
+      }
+      if (card_id) {
+        window.location.replace(`${window.location.origin}${window.location.pathname}?card_id=${card_id}`)
         return
       }
       window.location.replace(window.location.origin + window.location.pathname)

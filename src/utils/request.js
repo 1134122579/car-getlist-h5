@@ -26,7 +26,7 @@ service.interceptors.request.use(
       })
     }
     setToken(
-      '1d5370362dfa9249b4bf069e7bd5d86dc6ab6aeb9a9fec25fe119f486f59a79e7bda669bb976601d030855227415e9f6abe205aad8b8ae8039d27d4f9edcf5e7593c8eeb5f0d96d97a0a89b53cd2dfd6'
+      'a325d4fc62230ee16c729a9b4bdf803c207d60bedd5cfc587227f57bc5f0e0db8d849c29cba608c43a47be38e63e1644abe205aad8b8ae8039d27d4f9edcf5e7593c8eeb5f0d96d97a0a89b53cd2dfd6'
     )
     config.headers['app-type'] = 'ios'
     if (getToken()) {

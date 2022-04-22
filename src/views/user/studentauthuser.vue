@@ -6,7 +6,7 @@
     <div class="content_b">
       <!-- <img class="contentimg" src="../../assets/vipTitle.png" alt="" /> -->
       <div class="eitUser" v-if="![1].includes(userInfo.is_auth)">
-        <div class="eitUser-title">学生卡认证</div>
+        <div class="eitUser-title">{{ cardpageInfo.name }}认证</div>
         <van-form @submit="onSubmit">
           <!-- <div class="upload">
             <van-uploader :after-read="afterRead">
@@ -76,16 +76,16 @@
       </div>
       <!-- 认证审核中 -->
 
-      <div class="eitUser" v-if="userInfo.is_auth == 1 && cardpageInfo.is_shehe == 5">
+      <div class="eitUser" v-if="userInfo.is_auth == 1 && cardpageInfo.receive_status == 5">
         <div class="eitUser-title">{{ cardpageInfo.name }}认证</div>
         <van-empty class="custom-image" :image="authloading" description="审核中">
-          <van-button round type="danger" size="small" @click="gotocard" color="#D85A1D" class="bottom-button"
-            >崔审核</van-button
-          >
+          <!-- <van-button round type="danger" size="small" @click="gotocard" color="#D85A1D" class="bottom-button"
+            >审核</van-button
+          > -->
         </van-empty>
       </div>
       <!-- 认证通过 -->
-      <div class="eitUser" v-if="userInfo.is_auth == 1 && cardpageInfo.is_shehe == 1">
+      <div class="eitUser" v-if="userInfo.is_auth == 1 && [0, 1, 6].includes(cardpageInfo.receive_status)">
         <div class="eitUser-title">{{ cardpageInfo.name }}认证</div>
         <van-empty class="custom-image" :image="imgsuccessicon" description="认证成功">
           <van-button round type="danger" size="small" @click="gotocard" color="#D85A1D" class="bottom-button"
@@ -220,26 +220,38 @@ export default {
     // 创建会员卡领取记录
     async createVipOrder() {
       let { card_id } = this.$route.query
-
       if (!card_id) {
         this.$router.replace({ path: '/404' })
         return
       }
-      this.$toast.loading({
-        message: '加载中...',
-        forbidClick: true
-      })
-      let res = await this.Api.createVipOrder({ card_id })
-      this.addCard()
+      console.log(this.cardpageInfo.receive_status)
+      if (this.cardpageInfo.receive_status == '0') {
+        let res = await this.Api.createVipOrder({ card_id })
+        if (this.cardpageInfo.is_shehe == 1) {
+          //弹框提醒审核中
+          this.$toast.fail('资料审核中')
+          console.log('资料审核中')
+          this.getcardInfo()
+        } else {
+          this.addCard()
+        }
+      } else if ([1, 6].includes(this.cardpageInfo.receive_status)) {
+        // 后续加上修改领取状态
+        this.addCard()
+      }
     },
     // 领取会员卡到卡包
     addCard() {
       let that = this
       let { vip_code, gh_openid } = this.userInfo
-      let { card_id } = this.cardpageInfo //  微信卡包id
+      let cardId = this.cardpageInfo.card_id //  微信卡包id
       let cardpageId = this.$route.query.card_id //微信当前卡包信息id
       let code = `${vip_code}-${cardpageId}`
-      let cardId = that.Api.getShare({
+      this.$toast.loading({
+        message: '加载中...',
+        forbidClick: true
+      })
+      that.Api.getShare({
         url: location.href
       }).then(res => {
         console.log(res.data)
@@ -255,7 +267,7 @@ export default {
           signature: signature, // 必填，签名，见附录1
           jsApiList: ['updateAppMessageShareData', 'updateTimelineShareData', 'chooseCard', 'addCard'] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
         })
-        that.Api.cardExtSignPackage({ card_id, code, openid: gh_openid, timestamp }).then(cardExtSign => {
+        that.Api.cardExtSignPackage({ card_id: cardId, code, openid: gh_openid, timestamp }).then(cardExtSign => {
           console.log('cardExtSignPackage', cardExtSign.data)
           let { signature, apiTicket, nonceStr, openid, card_id, code } = cardExtSign.data
           that.$wx.ready(() => {
@@ -434,8 +446,8 @@ export default {
     padding: 18px 0;
     color: #fff;
     color: #f7f8fa;
-
-    line-height: 1.5;
+    font-size: 14px;
+    line-height: 2;
     margin-bottom: 50px;
     .rule-title {
       text-align: center;
