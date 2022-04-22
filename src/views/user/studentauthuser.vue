@@ -3,47 +3,54 @@
     <!-- <div class="header">
       <van-nav-bar title="用户认证" left-text="返回" left-arrow @click-left="onClickLeft" />
     </div> -->
-    <div class="content_b">
-      <!-- <img class="contentimg" src="../../assets/vipTitle.png" alt="" /> -->
-      <div class="eitUser" v-if="![1].includes(userInfo.is_auth)">
-        <div class="eitUser-title">{{ cardpageInfo.name }}认证</div>
-        <van-form @submit="onSubmit">
-          <!-- <div class="upload">
+
+    <!-- 是否需要认证 1 需要认证  2 不需要-->
+    <div class="content_b" v-if="cardpageInfo.is_auth == 2">
+      <van-button round type="danger" block size="small" @click="gotocard" color="#D85A1D">领取卡片</van-button>
+    </div>
+    <!-- 是否需要认证 1 需要认证  2 不需要-->
+    <div class="content_b" v-if="cardpageInfo.is_auth == 1">
+      <div>
+        <!-- 填写信息 -->
+        <div class="eitUser" v-if="![1].includes(userInfo.is_auth)">
+          <div class="eitUser-title">{{ cardpageInfo.name }}认证</div>
+          <van-form @submit="onSubmit">
+            <!-- <div class="upload">
             <van-uploader :after-read="afterRead">
               <van-image v-if="!cardImg" :src="card_Z"></van-image>
               <van-image v-if="cardImg" height="240" :src="cardImg"></van-image>
               <p class="rz">点击，上传身份证</p>
             </van-uploader>
           </div> -->
-          <!-- <div class="upload">
+            <!-- <div class="upload">
             <van-uploader :after-read="afterRead">
               <van-image v-if="!cardImg" :src="card_Z"></van-image>
               <van-image v-if="cardImg" height="240" :src="cardImg"></van-image>
               <p class="rz">点击，上传学生证</p>
             </van-uploader>
           </div> -->
-          <van-field
-            v-model="userInfo.name"
-            name="name"
-            label-width="60px"
-            label="姓名"
-            colon
-            placeholder="请填写姓名"
-            required
-            :rules="[{ required: true }]"
-          />
-          <van-field
-            v-model.trim="userInfo.mobile"
-            type="tel"
-            name="mobile"
-            label="手机号"
-            colon
-            label-width="60px"
-            placeholder="请输入手机号"
-            required
-            :rules="[{ required: true }]"
-          />
-          <!-- <van-field
+            <van-field
+              v-model="userInfo.name"
+              name="name"
+              label-width="60px"
+              label="姓名"
+              colon
+              placeholder="请填写姓名"
+              required
+              :rules="[{ required: true }]"
+            />
+            <van-field
+              v-model.trim="userInfo.mobile"
+              type="tel"
+              name="mobile"
+              label="手机号"
+              colon
+              label-width="60px"
+              placeholder="请输入手机号"
+              required
+              :rules="[{ required: true }]"
+            />
+            <!-- <van-field
             v-model.trim="userInfo.userCode"
             name="userCode"
             label="学号"
@@ -51,56 +58,60 @@
             required
             :rules="[{ required: true }]"
           /> -->
-          <van-field
-            v-model.trim="userInfo.idcard"
-            name="idcard"
-            colon
-            type="number"
-            label="身份证"
-            label-width="60px"
-            placeholder="请输入身份证"
-            required
-            :rules="[{ required: true }]"
-          />
-          <!-- <van-field
+            <van-field
+              v-model.trim="userInfo.idcard"
+              name="idcard"
+              colon
+              type="number"
+              label="身份证"
+              label-width="60px"
+              placeholder="请输入身份证"
+              required
+              :rules="[{ required: true }]"
+            />
+            <!-- <van-field
           v-model="userInfo.address"
           name="address"
           label="地址"
           placeholder="请输入地址"
           :rules="[{ required: true, message: '请填写地址' }]"
         /> -->
-          <div style="margin: 8px 10px">
-            <van-button round block size="small" type="info" color="#D85A1D" native-type="submit">立即认证</van-button>
-          </div>
-        </van-form>
-      </div>
-      <!-- 认证审核中 -->
-
-      <div class="eitUser" v-if="userInfo.is_auth == 1 && cardpageInfo.receive_status == 5">
-        <div class="eitUser-title">{{ cardpageInfo.name }}认证</div>
-        <van-empty class="custom-image" :image="authloading" description="审核中">
-          <!-- <van-button round type="danger" size="small" @click="gotocard" color="#D85A1D" class="bottom-button"
+            <div style="margin: 8px 10px">
+              <van-button round block size="small" type="info" color="#D85A1D" native-type="submit"
+                >立即认证</van-button
+              >
+            </div>
+          </van-form>
+        </div>
+        <!-- 认证审核中 -->
+        <div class="eitUser" v-if="userInfo.is_auth == 1 && cardpageInfo.receive_status == 5">
+          <div class="eitUser-title">{{ cardpageInfo.name }}认证</div>
+          <van-empty class="custom-image" :image="authloading" description="审核中">
+            <!-- <van-button round type="danger" size="small" @click="gotocard" color="#D85A1D" class="bottom-button"
             >审核</van-button
           > -->
-        </van-empty>
-      </div>
-      <!-- 认证通过 -->
-      <div class="eitUser" v-if="userInfo.is_auth == 1 && [0, 1, 6].includes(cardpageInfo.receive_status)">
-        <div class="eitUser-title">{{ cardpageInfo.name }}认证</div>
-        <van-empty class="custom-image" :image="imgsuccessicon" description="认证成功">
-          <van-button round type="danger" size="small" @click="gotocard" color="#D85A1D" class="bottom-button"
-            >领取卡片</van-button
-          >
-        </van-empty>
+          </van-empty>
+        </div>
+        <!-- 认证通过 -->
+        <div class="eitUser" v-if="userInfo.is_auth == 1 && [0, 1, 6].includes(cardpageInfo.receive_status)">
+          <div class="eitUser-title">{{ cardpageInfo.name }}认证</div>
+          <van-empty class="custom-image" :image="imgsuccessicon" description="认证成功">
+            <van-button round type="danger" size="small" @click="gotocard" color="#D85A1D" class="bottom-button"
+              >领取卡片</van-button
+            >
+          </van-empty>
+        </div>
       </div>
       <div class="rule">
         <div class="rule-title">规则介绍</div>
-        <ul>
+        <!-- <div v-html="cardpageInfo.desc"></div> -->
+        <pre>{{ cardpageInfo.desc }}</pre>
+        <!-- <ul>
           <li>1.年龄小于22岁，驻淄高校学生</li>
           <li>2.学生卡39.9元/年</li>
           <li>3.规则介绍规则介绍规则介绍规则介绍规则介绍规则介绍规则介绍规则介绍</li>
           <li>4.最终解释权归本公司所有</li>
-        </ul>
+        </ul> -->
       </div>
       <!-- <img class="bottomtimg" src="../../assets/bottom.png" alt="" /> -->
     </div>
@@ -138,10 +149,10 @@ export default {
       }
       let res = await this.Api.getCardInfo({ card_id })
       let cardpageInfo = res.data
+      cardpageInfo['desclist'] = cardpageInfo['desc'].split('/n')
       this.cardpageInfo = cardpageInfo
-      console.log(cardpageInfo)
+      console.log('cardpageInfo', cardpageInfo)
       window.document.title = cardpageInfo.name + '领取'
-      console.log(document.title)
     },
     async getinfoil() {
       let that = this
@@ -207,8 +218,9 @@ export default {
       }
     },
     gotocard() {
-      let { is_free } = this.cardpageInfo
-      //   1 免费 2 收费
+      let { is_free, is_auth } = this.cardpageInfo
+      //   is_auth  1 认证  2 不认证
+      //  is_free 1 免费 2 收费
       if (is_free == 2) {
         console.log('收费')
         this.payVipOrder()
@@ -388,6 +400,10 @@ export default {
 </script>
 
 <style lang="scss">
+pre {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
 .userinfoStyle {
   width: 100%;
   min-height: 100vh;
