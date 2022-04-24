@@ -24,7 +24,7 @@ export const constantRouterMap = [
     }
   },
   {
-    path: '/studentauthuser',
+    path: '/deawcard',
     component: () => import('@/views/user/studentauthuser.vue'),
     meta: {
       title: '学生卡认证领取',
@@ -36,9 +36,9 @@ export const constantRouterMap = [
         return
       }
       let wxConfig = {
-        title: '天空之橙，学生卡领取',
-        desc: '驻淄高校学生领取会员卡',
-        link: location.origin + location.pathname,
+        title: '天空之橙，会员卡领取',
+        desc: '天空之橙，会员卡领取',
+        link: location.origin + location.pathname + location.search,
         imgUrl: 'http://api.skyorange.cn/wxh5/skylogo.jpg',
         success(res) {}
       }
