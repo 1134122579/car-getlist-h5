@@ -43,4 +43,10 @@ function getShareInfo(wxConfig, callback) {
     })
 }
 
-export { getShareInfo }
+function getSharetextInfo(wxConfig) {
+  wx.ready(function () {
+    wx.updateAppMessageShareData(wxConfig)
+    wx.updateTimelineShareData(wxConfig)
+  })
+}
+export { getShareInfo, getSharetextInfo }

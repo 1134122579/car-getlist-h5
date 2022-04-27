@@ -74,13 +74,14 @@ export default {
     }
   },
   created() {
-    this.couponcode = this.$route.query.couponcode
-    this.qrcode() //展示二维码
     this.onePlay()
+    this.couponcode = this.$route.query.couponcode
     this.getCouponDetial()
   },
 
-  mounted() {},
+  mounted() {
+    this.qrcode() //展示二维码
+  },
   methods: {
     getCouponDetial() {
       this.Api.getCouponDetial({ code: this.couponcode }).then(res => {
@@ -120,10 +121,12 @@ export default {
       let qrcodeName = this.$refs.qrcode
       console.log(location)
       let text = `${this.couponcode}`
+      console.log(text, qrcodeName)
       this.qrcodecreated = new QRCode(qrcodeName, {
         render: 'canvas', //也可以替换为table
         width: 250,
         height: 250,
+        text: '1321',
         colorDark: '#000',
         colorLight: '#fff'
       })

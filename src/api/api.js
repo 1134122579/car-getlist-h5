@@ -27,6 +27,8 @@ const api = {
   checkCoupon: '/checkCoupon',
   getCardInfo: '/getCardInfo',
   createVipOrder: '/createVipOrder',
+  nextVipOrder: '/nextVipOrder',
+  editWXCardOrderStatus: '/editWXCardOrderStatus',
   getCouponDetial: '/getCouponDetial'
 }
 

@@ -1,17 +1,42 @@
 <template>
   <div class="userinfoStyle">
-    <!-- <div class="header">
-      <van-nav-bar title="用户认证" left-text="返回" left-arrow @click-left="onClickLeft" />
-    </div> -->
-
     <!-- 是否需要认证 1 需要认证  2 不需要-->
     <div class="content_b" v-if="cardpageInfo.is_auth == 2">
-      <van-button round type="danger" block size="small" @click="gotocard" color="#D85A1D">领取卡片</van-button>
+      <div>
+        <div class="rece-button" v-if="[0, 1, 2, 3, 6].includes(cardpageInfo.receive_status)">
+          <van-button round type="danger" block size="small" :disabled="is_loading" @click="gotocard" color="#D85A1D"
+            >领取卡片</van-button
+          >
+        </div>
+        <!-- 审核中  -->
+        <div class="eitUser" v-if="cardpageInfo.receive_status == 5">
+          <div class="eitUser-title">{{ cardpageInfo.name }}</div>
+          <van-empty class="custom-image" :image="authloading" description="亲，已为您加急审核~"> </van-empty>
+        </div>
+        <!-- 拒绝 通过审核  -->
+        <div class="eitUser" v-if="cardpageInfo.receive_status == 7">
+          <div class="eitUser-title">{{ cardpageInfo.name }}</div>
+          <van-empty
+            class="custom-image custom-image-err"
+            :image="imgerricon"
+            description="您的领取申请不通过"
+          ></van-empty>
+        </div>
+      </div>
+      <!-- 规则  -->
+      <div class="rule">
+        <div class="rule-title">领取规则</div>
+        <pre>{{ cardpageInfo.desc }}</pre>
+      </div>
     </div>
     <!-- 是否需要认证 1 需要认证  2 不需要-->
     <div class="content_b" v-if="cardpageInfo.is_auth == 1">
-      <div>
-        <!-- 填写信息 -->
+      <!-- 加载动画 -->
+      <div class="eitUser" v-if="is_loading">
+        <img class="loadingstyle" src="../../assets/loading.gif" alt="" />
+      </div>
+      <div v-if="!is_loading">
+        <!-- 填写信息 填写认证信息 -->
         <div class="eitUser" v-if="![1].includes(userInfo.is_auth)">
           <div class="eitUser-title">{{ cardpageInfo.name }}认证</div>
           <van-form @submit="onSubmit">
@@ -62,7 +87,6 @@
               v-model.trim="userInfo.idcard"
               name="idcard"
               colon
-              type="number"
               label="身份证"
               label-width="60px"
               placeholder="请输入身份证"
@@ -85,35 +109,34 @@
         </div>
         <!-- 认证审核中 -->
         <div class="eitUser" v-if="userInfo.is_auth == 1 && cardpageInfo.receive_status == 5">
-          <div class="eitUser-title">{{ cardpageInfo.name }}认证</div>
-          <van-empty class="custom-image" :image="authloading" description="审核中">
-            <!-- <van-button round type="danger" size="small" @click="gotocard" color="#D85A1D" class="bottom-button"
-            >审核</van-button
-          > -->
+          <div class="eitUser-title">{{ cardpageInfo.name }}领取</div>
+          <van-empty class="custom-image" :image="authloading" description="亲，已为您加急审核~"> </van-empty>
+        </div>
+        <!-- 认证 通过 -->
+        <div class="eitUser" v-if="userInfo.is_auth == 1 && [0, 1, 2, 3, 6].includes(cardpageInfo.receive_status)">
+          <div class="eitUser-title">{{ cardpageInfo.name }}领取</div>
+          <van-empty
+            class="custom-image"
+            :image="imgsuccessicon"
+            :description="[1, 6].includes(cardpageInfo.receive_status) ? '亲，您的领取申请已通过' : '身份信息已认证'"
+          >
+            <van-button round type="danger" size="small" @click="gotocard" color="#D85A1D" class="bottom-button">{{
+              [1, 6].includes(cardpageInfo.receive_status) ? '立即领取' : '领取卡片'
+            }}</van-button>
+            <p class="rule_tig">*领取条件参考如下规则</p>
           </van-empty>
         </div>
-        <!-- 认证通过 -->
-        <div class="eitUser" v-if="userInfo.is_auth == 1 && [0, 1, 6].includes(cardpageInfo.receive_status)">
-          <div class="eitUser-title">{{ cardpageInfo.name }}认证</div>
-          <van-empty class="custom-image" :image="imgsuccessicon" description="认证成功">
-            <van-button round type="danger" size="small" @click="gotocard" color="#D85A1D" class="bottom-button"
-              >领取卡片</van-button
-            >
+        <!-- 拒绝 通过审核  -->
+        <div class="eitUser" v-if="userInfo.is_auth == 1 && cardpageInfo.receive_status == 7">
+          <div class="eitUser-title">{{ cardpageInfo.name }}领取</div>
+          <van-empty class="custom-image custom-image-err" :image="imgerricon" description="您的领取申请不通过">
           </van-empty>
         </div>
       </div>
       <div class="rule">
-        <div class="rule-title">规则介绍</div>
-        <!-- <div v-html="cardpageInfo.desc"></div> -->
+        <div class="rule-title">领取规则</div>
         <pre>{{ cardpageInfo.desc }}</pre>
-        <!-- <ul>
-          <li>1.年龄小于22岁，驻淄高校学生</li>
-          <li>2.学生卡39.9元/年</li>
-          <li>3.规则介绍规则介绍规则介绍规则介绍规则介绍规则介绍规则介绍规则介绍</li>
-          <li>4.最终解释权归本公司所有</li>
-        </ul> -->
       </div>
-      <!-- <img class="bottomtimg" src="../../assets/bottom.png" alt="" /> -->
     </div>
   </div>
 </template>
@@ -121,6 +144,7 @@
 <script>
 import { Toast } from 'vant'
 import { compressImg } from '@/utils/compressImg'
+import { getSharetextInfo } from '@/utils/share'
 export default {
   data() {
     return {
@@ -129,10 +153,12 @@ export default {
       cardImg: '',
       card_Z: require('@/assets/card_z.png'),
       imgsuccessicon: require('@/assets/auth-success.png'),
+      imgerricon: require('@/assets/shenhe-err.png'),
       authloading: require('@/assets/auth-loading.png'),
       card_F: require('@/assets/card_f.png'),
       fileList: [],
-      userInfo: ''
+      userInfo: '',
+      is_loading: true
     }
   },
   created() {
@@ -140,6 +166,8 @@ export default {
     this.getinfoil()
   },
   methods: {
+    //   分享配置
+    getShare() {},
     // 获取卡片信息
     async getcardInfo() {
       let { card_id } = this.$route.query
@@ -153,12 +181,21 @@ export default {
       this.cardpageInfo = cardpageInfo
       console.log('cardpageInfo', cardpageInfo)
       window.document.title = cardpageInfo.name + '领取'
+      let wxConfig = {
+        title: `${cardpageInfo.title}`,
+        desc: `${cardpageInfo.content}`,
+        link: location.origin + location.pathname + location.search,
+        imgUrl: 'http://api.skyorange.cn/wxh5/skylogo.jpg',
+        success(res) {}
+      }
+      getSharetextInfo(wxConfig)
     },
     async getinfoil() {
       let that = this
       let res = await this.Api.getUserInfo()
       console.log(res.data)
       that.userInfo = res.data
+      this.is_loading = false
     },
     afterRead(file) {
       // 此时可以自行将文件上传至服务器
@@ -204,25 +241,67 @@ export default {
     onSubmit(e) {
       console.log(e)
       let { card_id } = this.$route.query
-      let { min_age, max_age } = this.cardpageInfo
+      let { min_age, max_age, sex } = this.cardpageInfo
       let that = this
       let { idcard, address, name, mobile } = this.userInfo
       let age = this.getAge(idcard)
-      if (age > min_age && age < max_age) {
-        this.Api.authUserInfo({ idcard, address, name, mobile, card_id }).then(res => {
-          Toast.success('认证成功')
-          that.getinfoil()
+      if (sex != 0) {
+        let issex = parseInt(idcard.substr(16, 1)) % 2 == 1 ? 1 : 2
+        if (issex != sex) {
+          // alert('男')
+          this.$toast(`对不起，此卡仅限${sex == 1 ? '男性' : '女性'}领取！`)
+          return
+        }
+      }
+      if (age >= min_age && age <= max_age) {
+        this.$toast.loading({
+          message: '加载中...',
+          forbidClick: true,
+          duration: 0
         })
+        try {
+          this.Api.authUserInfo({ idcard, address, name, mobile, card_id }).then(res => {
+            Toast.success('认证成功')
+            that.getinfoil()
+            that.$toast.clear()
+          })
+        } catch (error) {
+          this.$toast.clear()
+        }
       } else {
-        Toast.fail('年龄不符合')
+        this.$toast('对不起，您的年龄不符合领取规则')
       }
     },
     gotocard() {
-      let { is_free, is_auth } = this.cardpageInfo
+      let { is_free, is_auth, receive_status, min_age, max_age, sex } = this.cardpageInfo
       //   is_auth  1 认证  2 不认证
       //  is_free 1 免费 2 收费
+      if (receive_status == 1) {
+        this.addCard()
+        return
+      }
+      //   需要认证
+      if (is_auth == 1) {
+        let age = this.getAge(this.userInfo.idcard)
+        if (age < min_age || age > max_age) {
+          this.$toast('对不起，您的年龄不符合领取规则！')
+          return
+        }
+        // 获取性别
+        if (sex != 0) {
+          let issex = parseInt(this.userInfo.idcard.substr(16, 1)) % 2 == 1 ? 1 : 2
+          // 1    1
+          //    男   男
+          if (issex != sex) {
+            // alert('男')
+            this.$toast(`对不起，此卡仅限${sex == 1 ? '男性' : '女性'}领取！`)
+            return
+          }
+        }
+      }
       if (is_free == 2) {
         console.log('收费')
+        // receive_status  2  待支付  1 待领取
         this.payVipOrder()
       } else {
         console.log('免费')
@@ -236,19 +315,22 @@ export default {
         this.$router.replace({ path: '/404' })
         return
       }
-      console.log(this.cardpageInfo.receive_status)
+      //   let { min_age, max_age, is_auth, sex } = this.cardpageInfo
+
       if (this.cardpageInfo.receive_status == '0') {
         let res = await this.Api.createVipOrder({ card_id })
         if (this.cardpageInfo.is_shehe == 1) {
           //弹框提醒审核中
-          this.$toast.fail('资料审核中')
-          console.log('资料审核中')
+          this.$toast.fail('提交中')
+          console.log('提交中')
           this.getcardInfo()
         } else {
+          let editWXCardOrder = await this.Api.editWXCardOrderStatus({ order_no: this.cardpageInfo.order_no })
           this.addCard()
         }
       } else if ([1, 6].includes(this.cardpageInfo.receive_status)) {
         // 后续加上修改领取状态
+        let editWXCardOrder = await this.Api.editWXCardOrderStatus({ order_no: this.cardpageInfo.order_no })
         this.addCard()
       }
     },
@@ -319,9 +401,28 @@ export default {
       //     this.$toast.fail('请阅读安全协议')
       //     return
       //   }
-      this.Api.payTicketOrder({
-        pay_type: 1
-      }).then(res => {
+      let { receive_status, order_no } = this.cardpageInfo
+      let { card_id } = this.$route.query
+      //   调取继续支付接口
+      if (receive_status == 2) {
+        this.Api.nextVipOrder({ out_trade_no: order_no }).then(res => {
+          console.log(res)
+          that.payToolsOrderApi = res.data //数据
+          if (typeof WeixinJSBridge == 'undefined') {
+            if (document.addEventListener) {
+              document.addEventListener('WeixinJSBridgeReady', this.onBridgeReady, false)
+            } else if (document.attachEvent) {
+              document.attachEvent('WeixinJSBridgeReady', this.onBridgeReady)
+              document.attachEvent('onWeixinJSBridgeReady', this.onBridgeReady)
+            }
+          } else {
+            this.onBridgeReady()
+          }
+        })
+        return
+      }
+      //   创建新的订单支付
+      this.Api.createVipOrder({ card_id }).then(res => {
         console.log(res)
         that.payToolsOrderApi = res.data //数据
         if (typeof WeixinJSBridge == 'undefined') {
@@ -342,23 +443,27 @@ export default {
       let { out_trade_no } = this.payToolsOrderApi
       WeixinJSBridge.invoke('getBrandWCPayRequest', that.payToolsOrderApi, function (res) {
         that.queryToolsOrder(out_trade_no)
+        that.getCardInfo()
         return
       })
     },
     // 查询是否支付成功
     queryToolsOrder(data) {
-      this.Api.queryTicketOrder({ out_trade_no: data })
+      this.Api.queryVipOrder({ out_trade_no: data })
         .then(res => {
           Toast.success('支付成功')
-          let text = `${this.userInfo.vip_code}-${data}`
-          this.qrcodecreated.clear() // 清除二维码
-          this.qrcodecreated.makeCode(text) // 也可以调用方法生成二维码，好处就是可以先清除在生成
-          this.is_pay = true
-          this.islookCard = true
-          this.show = true
+          this.getcardInfo()
+          this.addCard()
+          //   let text = `${this.userInfo.vip_code}-${data}`
+          //   this.qrcodecreated.clear() // 清除二维码
+          //   this.qrcodecreated.makeCode(text) // 也可以调用方法生成二维码，好处就是可以先清除在生成
+          //   this.is_pay = true
+          //   this.islookCard = true
+          //   this.show = true
         })
         .catch(() => {
           console.log('支付失败')
+          this.getcardInfo()
           Toast.fail('支付失败')
           // this.$wx.closeWindow()
         })
@@ -419,10 +524,13 @@ pre {
   .content_b {
     margin-top: 200px;
     width: 82%;
+    .rece-button {
+      margin-top: 230px;
+    }
   }
 
   .eitUser {
-    padding: 4px 10px;
+    padding: 0.40667rem 10px 0.12rem;
     margin: 0 auto;
     background: #fff;
     border-radius: 10px;
@@ -431,6 +539,12 @@ pre {
       text-align: center;
       font-size: 16px;
       padding: 10px 0;
+    }
+    .rule_tig {
+      font-size: 12px;
+      color: #ff0000;
+      text-align: center;
+      margin-top: 5px;
     }
     .upload {
       display: flex;
@@ -449,8 +563,23 @@ pre {
         // padding: 10px;
       }
     }
+    .loadingstyle {
+      width: 100%;
+      height: 100%;
+      display: block;
+      margin: 0 auto;
+      // object-fit: ;
+    }
     .custom-image {
       padding: 0.3rem 0;
+      .van-empty__bottom {
+        margin-top: 10px;
+      }
+    }
+    .custom-image-err {
+      img {
+        object-fit: none;
+      }
     }
     .bottom-button {
       width: 190px;
@@ -462,12 +591,12 @@ pre {
     padding: 18px 0;
     color: #fff;
     color: #f7f8fa;
-    font-size: 14px;
+    font-size: 12px;
     line-height: 2;
     margin-bottom: 50px;
     .rule-title {
       text-align: center;
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 600;
       padding-bottom: 10px;
     }

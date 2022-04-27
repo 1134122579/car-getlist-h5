@@ -241,3 +241,19 @@ export function createVipOrder(data) {
     hideloading: true
   })
 }
+export function editWXCardOrderStatus(data) {
+  return request({
+    url: api.editWXCardOrderStatus,
+    method: 'post',
+    data,
+    hideloading: true
+  })
+}
+export function nextVipOrder(data) {
+  return request({
+    url: api.nextVipOrder,
+    method: 'post',
+    data,
+    hideloading: true
+  })
+}
