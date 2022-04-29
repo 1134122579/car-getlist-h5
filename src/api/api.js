@@ -28,6 +28,8 @@ const api = {
   getCardInfo: '/getCardInfo',
   createVipOrder: '/createVipOrder',
   nextVipOrder: '/nextVipOrder',
+  sendMsg: '/sendMsg',
+  applyOrder: '/applyOrder',
   editWXCardOrderStatus: '/editWXCardOrderStatus',
   getCouponDetial: '/getCouponDetial'
 }

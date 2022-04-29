@@ -257,3 +257,19 @@ export function nextVipOrder(data) {
     hideloading: true
   })
 }
+export function sendMsg(data) {
+  return request({
+    url: api.sendMsg,
+    method: 'post',
+    data,
+    hideloading: true
+  })
+}
+export function applyOrder(data) {
+  return request({
+    url: api.applyOrder,
+    method: 'post',
+    data,
+    hideloading: true
+  })
+}
