@@ -189,6 +189,7 @@
 import { Toast } from 'vant'
 import { compressImg } from '@/utils/compressImg'
 import { getSharetextInfo } from '@/utils/share'
+import { getUrlKey } from '@/utils/wxload'
 export default {
   data() {
     return {
@@ -263,7 +264,7 @@ export default {
       let wxConfig = {
         title: `${cardpageInfo.title}`,
         desc: `${cardpageInfo.content}`,
-        link: location.origin + location.pathname + location.search,
+        link: location.origin + location.pathname + '?card_id=' + getUrlKey('card_id'),
         imgUrl: 'http://api.skyorange.cn/wxh5/skylogo.jpg',
         success(res) {}
       }
@@ -359,13 +360,11 @@ export default {
       let { is_free, is_auth, receive_status, min_age, max_age, sex } = this.cardpageInfo
       //   is_auth  1 认证  2 不认证
       //  is_free 1 免费 2 收费
-      if (receive_status == 1) {
-        this.addCard()
-        return
-      }
       //   需要认证
+      console.log(this.userInfo.age, 'age', min_age, max_age)
       if (is_auth == 1) {
-        let age = this.getAge(this.userInfo.idcard)
+        // let age = this.getAge(this.userInfo.idcard)
+        let age = Number(this.userInfo.age)
         if (age < min_age || age > max_age) {
           this.$toast('对不起，您的年龄不符合领取规则！')
           return
@@ -381,6 +380,10 @@ export default {
             return
           }
         }
+      }
+      if (receive_status == 1) {
+        this.addCard()
+        return
       }
       if (is_free == 2) {
         console.log('收费')
