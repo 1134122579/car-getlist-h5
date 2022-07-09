@@ -201,9 +201,25 @@ export function ReceiveCoupon(data) {
     hideloading: true
   })
 }
+export function ReceiveCoupon1(data) {
+  return request({
+    url: api.ReceiveCoupon1,
+    method: 'get',
+    data,
+    hideloading: true
+  })
+}
 export function getCouponLog(params) {
   return request({
     url: api.getCouponLog,
+    method: 'get',
+    params,
+    hideloading: true
+  })
+}
+export function getCouponLog1(params) {
+  return request({
+    url: api.getCouponLog1,
     method: 'get',
     params,
     hideloading: true
@@ -217,9 +233,25 @@ export function checkCoupon(params) {
     hideloading: true
   })
 }
+export function checkCoupon1(params) {
+  return request({
+    url: api.checkCoupon1,
+    method: 'get',
+    params,
+    hideloading: true
+  })
+}
 export function getCouponDetial(params) {
   return request({
     url: api.getCouponDetial,
+    method: 'get',
+    params,
+    hideloading: true
+  })
+}
+export function getCouponDetial1(params) {
+  return request({
+    url: api.getCouponDetial1,
     method: 'get',
     params,
     hideloading: true

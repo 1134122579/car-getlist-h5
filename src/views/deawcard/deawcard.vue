@@ -190,6 +190,7 @@ import { Toast } from 'vant'
 import { compressImg } from '@/utils/compressImg'
 import { getSharetextInfo } from '@/utils/share'
 import { getUrlKey } from '@/utils/wxload'
+import sha1 from 'sha1'
 export default {
   data() {
     return {
@@ -199,6 +200,8 @@ export default {
       isMobilePush: false,
       mobileTimeDown: 60,
       auth: 1,
+      getcardExtNum: 1,
+      setInter: null,
       cardpageInfo: '', //会员卡页面信息
       cardImg: '',
       card_Z: require('@/assets/card_z.png'),
@@ -447,7 +450,55 @@ export default {
           signature: signature, // 必填，签名，见附录1
           jsApiList: ['updateAppMessageShareData', 'updateTimelineShareData', 'chooseCard', 'addCard'] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
         })
-        that.Api.cardExtSignPackage({ card_id: cardId, code, openid: gh_openid, timestamp }).then(cardExtSign => {
+        this.getcardExtNum = 1
+        that.cardExtSignPackage(cardId, code, gh_openid, timestamp)
+        return
+        that.Api.cardExtSignPackage({ card_id: cardId, code, openid: gh_openid, timestamp })
+          .then(cardExtSign => {
+            console.log('cardExtSignPackage', cardExtSign.data)
+            let { signature, apiTicket, nonceStr, openid, card_id, code } = cardExtSign.data
+            that.$wx.ready(() => {
+              that.$wx.addCard({
+                cardList: [
+                  {
+                    cardId: cardId,
+                    cardExt: JSON.stringify({
+                      api_ticket: apiTicket,
+                      card_id,
+                      nonce_str: nonceStr,
+                      code,
+                      openid,
+                      timestamp,
+                      signature
+                    })
+                  }
+                ], // 需要添加的卡券列表
+                success: function (ress) {
+                  var cardList = ress.cardList // 添加的卡券列表信息
+                  console.log('添加的卡券列表信息', cardList)
+                  Toast.clear()
+                },
+                fail: function () {
+                  Toast.clear()
+                }
+              })
+            })
+          })
+          .catch(error => {
+            console.log(error, 'errorerrorerrorerrorerror')
+            this.addCard()
+          })
+      })
+    },
+    // 调用领取卡包
+    cardExtSignPackage(cardId, code, gh_openid, timestamp) {
+      let that = this
+      if (this.getcardExtNum > 3) {
+        clearInterval(this.setInter)
+        return
+      }
+      that.Api.cardExtSignPackage({ card_id: cardId, code, openid: gh_openid, timestamp })
+        .then(cardExtSign => {
           console.log('cardExtSignPackage', cardExtSign.data)
           let { signature, apiTicket, nonceStr, openid, card_id, code } = cardExtSign.data
           that.$wx.ready(() => {
@@ -477,7 +528,13 @@ export default {
             })
           })
         })
-      })
+        .catch(error => {
+          console.log(error, this.getcardExtNum, 'errorerrorerrorerrorerror')
+          this.setInter = setInterval(() => {
+            this.getcardExtNum++
+            this.cardExtSignPackage(cardId, code, gh_openid, timestamp)
+          }, 500)
+        })
     },
 
     // 认证后调用支付

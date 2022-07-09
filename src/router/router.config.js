@@ -87,8 +87,24 @@ export const constantRouterMap = [
     }
   },
   {
+    path: '/couponpagetwenty',
+    component: () => import('@/views/couponpage/twenty.vue'),
+    meta: {
+      title: '天空之橙抵扣券',
+      keepAlive: false
+    }
+  },
+  {
     path: '/applypage',
     component: () => import('@/views/applypage/index.vue'),
+    meta: {
+      title: '天空之橙券码核销',
+      keepAlive: false
+    }
+  },
+  {
+    path: '/applypagetwenty',
+    component: () => import('@/views/applypage/twenty.vue'),
     meta: {
       title: '天空之橙券码核销',
       keepAlive: false
